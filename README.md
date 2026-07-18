@@ -18,7 +18,7 @@ n8n, Google Gemini, Pinecone, and Telegram.
 
 ## Build Stages
 - [x] Stage 1: Accounts & GitHub setup
-- [ ] Stage 2: n8n hosted on Railway
+- [x] Stage 2: n8n hosted on Railway
 - [ ] Stage 3: Document ingestion pipeline
 - [ ] Stage 4: Query & answer pipeline
 - [ ] Stage 5: Telegram bot connected
