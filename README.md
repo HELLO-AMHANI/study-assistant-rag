@@ -1,7 +1,7 @@
 # Study Assistant RAG
 
 A personal AI-powered study assistant built with 
-n8n, Google Gemini, Pinecone, and Telegram.
+n8n, Google Gemini, Qdrant, and Telegram.
 
 ## What It Does
 - Accept course documents (PDF) via Telegram
@@ -12,14 +12,14 @@ n8n, Google Gemini, Pinecone, and Telegram.
 ## Stack
 - n8n — workflow automation (hosted on Railway)
 - Google Gemini API — embeddings + chat model
-- Pinecone — vector database
+- Qdrant — vector database
 - Telegram — chat interface
 - GitHub — version control
 
 ## Build Stages
 - [x] Stage 1: Accounts & GitHub setup
 - [x] Stage 2: n8n hosted on Railway
-- [ ] Stage 3: Document ingestion pipeline
+- [x] Stage 3: Document ingestion pipeline
 - [ ] Stage 4: Query & answer pipeline
 - [ ] Stage 5: Telegram bot connected
 - [ ] Stage 6: Final documentation
