@@ -1,7 +1,7 @@
 # Study Assistant RAG
 
 A personal AI-powered study assistant built with 
-n8n, Google Gemini, Qdrant, and Telegram.
+n8n, Google Gemini, Groq, Qdrant, and Telegram.
 
 ## What It Does
 - Accept course documents (PDF) via Telegram
@@ -11,7 +11,7 @@ n8n, Google Gemini, Qdrant, and Telegram.
 
 ## Stack
 - n8n — workflow automation (hosted on Railway)
-- Google Gemini API — embeddings + chat model
+- Google Gemini API & Groq API — embeddings + chat model
 - Qdrant — vector database
 - Telegram — chat interface
 - GitHub — version control
