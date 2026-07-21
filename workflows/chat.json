@@ -1,0 +1,190 @@
+{
+  "name": "Study Assistant — Query",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -80,
+        -256
+      ],
+      "id": "67d36f25-1632-4007-ad1d-a036d9badf2f",
+      "name": "When chat message received",
+      "webhookId": "30206dd8-42e3-4bec-943e-6369daaea82f"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "study-assistant",
+          "mode": "list",
+          "cachedResultName": "study-assistant"
+        },
+        "prompt": "=={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        -256
+      ],
+      "id": "b54a2cd7-7ab3-49c3-9132-1b883f14122a",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "wUtxc4VemyM7shpO",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "e9e1d7ce-4898-43e9-8488-77167074916c",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "h30oHeF3YyKP6A0n",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Qdrant returns content at item.json.document.pageContent\nconst chunks = items.map(item => {\n  return item.json?.document?.pageContent\n    || item.json?.pageContent\n    || item.json?.text\n    || '';\n}).filter(chunk => chunk.trim() !== '');\n\n// Clean context string\nconst context = chunks.join('\\n\\n---\\n\\n');\n\n// Get original question\nconst question = $('When chat message received').item.json.chatInput;\n\nreturn [{\n  json: {\n    context: context,\n    question: question\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        -256
+      ],
+      "id": "08841cd6-f0a0-437d-a5cb-783c2b02bd90",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.question }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a focused study assistant helping a student prepare for exams.  Use ONLY the following context from the student's course document to answer the question. If the answer is not found in the context below, respond with exactly: \"I could not find that in your uploaded materials.\"  ---CONTEXT START--- {{ $json.context }} ---CONTEXT END---  Student's Question: {{ $json.question }}  Answer clearly and directly:"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        720,
+        -256
+      ],
+      "id": "1b6ab951-35a0-4e6d-8310-0cac0287c742",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -32
+      ],
+      "id": "4474a83a-000a-4722-8f71-93319a74a85c",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Ltb897PUHF3rNzrQ",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "77084992-c090-432f-9910-847119b2c8be",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cc4c1c44b8051cbd808afe6bd24ce1baca212cfa066320f88554ea8cc98f45c3"
+  },
+  "nodeGroups": [],
+  "id": "qbt5Q3sXELluNAvT",
+  "tags": []
+}
