@@ -20,7 +20,7 @@ n8n, Google Gemini, Groq, Qdrant, and Telegram.
 - [x] Stage 1: Accounts & GitHub setup
 - [x] Stage 2: n8n hosted on Railway
 - [x] Stage 3: Document ingestion pipeline
-- [ ] Stage 4: Query & answer pipeline
+- [x] Stage 4: Query & answer pipeline
 - [ ] Stage 5: Telegram bot connected
 - [ ] Stage 6: Final documentation
 
