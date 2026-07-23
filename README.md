@@ -22,7 +22,7 @@ n8n, Google Gemini, Groq, Qdrant, and Webhook.
 - [x] Stage 3: Document ingestion pipeline
 - [x] Stage 4: Query & answer pipeline
 - [x] Stage 5: Telegram bot connected
-- [ ] Stage 6: Final documentation
+- [x] Stage 6: Final documentation
 
 ## Author
 Built by AMHANi — AMHANi Enterprise
