@@ -1,7 +1,6 @@
 # 🎓 Study Assistant RAG
 
-> Ask your course documents exam-style questions and get 
-> accurate answers — no hallucinations, no outside knowledge.
+Ask your course documents exam-style questions and get accurate answers — no hallucinations, no outside knowledge.
 
 ## What It Does
 
