@@ -1,12 +1,12 @@
 # 🎓 Study Assistant RAG
 
-Ask your course documents exam-style questions and get accurate answers — no hallucinations, no outside knowledge.
+Ask your course documents exam-style questions and get accurate answers no hallucinations, no outside knowledge.
 
 ## What It Does
 
 Upload any lecture note or course PDF, then ask it questions 
 the way a lecturer would in an exam. The assistant answers 
-**only from your material** — nothing else.
+**only from your material** nothing else.
 
 ## How It Works
 
