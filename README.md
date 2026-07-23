@@ -1,20 +1,64 @@
-# Study Assistant RAG
+# 🎓 Study Assistant RAG
 
-A personal AI-powered study assistant built with 
-n8n, Google Gemini, Groq, Qdrant, and Webhook.
+> Ask your course documents exam-style questions and get 
+> accurate answers — no hallucinations, no outside knowledge.
 
 ## What It Does
-- Accept course documents (PDF) via Telegram
-- Store document content in a vector database
-- Answer exam-style questions based ONLY on 
-  uploaded material — no hallucinations
 
-## Stack
-- n8n — workflow automation (hosted on Railway)
-- Google Gemini API & Groq API — embeddings + chat model
-- Qdrant — vector database
-- Webhook — chat interface
-- GitHub — version control
+Upload any lecture note or course PDF, then ask it questions 
+the way a lecturer would in an exam. The assistant answers 
+**only from your material** — nothing else.
+
+## How It Works
+
+**Step 1 — Load your document (once)**
+
+Manual Trigger → HTTP Request (Google Drive PDF)
+→ Document Loader → Qdrant Vector Store
+↑
+Embeddings Google Gemini
+
+**Step 2 — Ask questions (every time)**
+
+Chat Trigger → Qdrant Vector Store (semantic search)
+↑
+Embeddings Google Gemini
+↓
+Code Node
+(builds context)
+↓
+Basic LLM Chain → Groq
+↓
+Respond to Webhook
+
+## Tech Stack
+
+| Tool | Role |
+|------|------|
+| [n8n](https://n8n.io) | Workflow automation — no code |
+| [Google Gemini](https://aistudio.google.com) | Embeddings (`text-embedding-004`) |
+| [Qdrant](https://qdrant.tech) | Vector database |
+| [Groq](https://console.groq.com) | LLM — fast free inference |
+| [Railway](https://railway.app) | Hosts n8n 24/7 |
+
+## Key Design Decisions
+
+- **Gemini for embeddings only** — most accurate at 768 dimensions
+- **Groq as LLM** — faster and free tier friendly
+- **Qdrant over Pinecone** — better free tier, clean REST API
+- **Webhook + CORS** — accessible from any interface
+- **Simple Memory** — maintains conversation context per session
+- **Manual linear pipeline** — explicit control over retrieval 
+  and context injection, no black-box agent
+
+## Project Structure
+
+study-assistant-rag/
+├── README.md
+├── .gitignore
+└── workflows/
+├── ingestion.json ← loads PDF into Qdrant
+└── chat.json ← answers questions via chat
 
 ## Build Stages
 - [x] Stage 1: Accounts & GitHub setup
@@ -25,4 +69,5 @@ n8n, Google Gemini, Groq, Qdrant, and Webhook.
 - [x] Stage 6: Final documentation
 
 ## Author
-Built by AMHANi — AMHANi Enterprise
+**Promise O. Amhanesi** — Founder, AMHANi Enterprise  
+Building AI-powered tools for finance and education.
