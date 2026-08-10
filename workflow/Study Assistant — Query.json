@@ -1,0 +1,264 @@
+{
+  "name": "Study Assistant — Query",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        -160
+      ],
+      "id": "942c809a-4a11-4c6d-bf0d-e88393c0f76a",
+      "name": "When chat message received",
+      "webhookId": "30206dd8-42e3-4bec-943e-6369daaea82f"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "study-assistant",
+          "mode": "list",
+          "cachedResultName": "study-assistant"
+        },
+        "prompt": "=={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        -160
+      ],
+      "id": "c3065dfc-07db-400b-877f-511c94668283",
+      "name": "Qdrant Vector Store1",
+      "credentials": {
+        "qdrantApi": {
+          "id": "GfXNVQYtLW4r1D9y",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        192
+      ],
+      "id": "3c8d7f92-74ba-4c90-a112-984104c30539",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "PvWFrkhsZdL73YPh",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// Qdrant returns content at item.json.document.pageContent\nconst chunks = items.map(item => {\n  return item.json?.document?.pageContent\n    || item.json?.pageContent\n    || item.json?.text\n    || '';\n}).filter(chunk => chunk.trim() !== '');\n\n// Clean context string\nconst context = chunks.join('\\n\\n---\\n\\n');\n\n// Get original question\nconst question = $('When chat message received').item.json.chatInput;\n\nreturn [{\n  json: {\n    context: context,\n    question: question\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "5f52f426-e481-4b11-b035-478510ad9c32",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.question }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a focused study assistant helping a student prepare for exams.  Use ONLY the following context from the student's course document to answer the question. If the answer is not found in the context below, respond with exactly: \"I could not find that in your uploaded materials.\"  ---CONTEXT START--- {{ $json.context }} ---CONTEXT END---  Student's Question: {{ $json.question }}  Answer clearly and directly:"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        912,
+        -160
+      ],
+      "id": "5de42854-45ea-4ec4-9196-34e56e2cc42c",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        912,
+        192
+      ],
+      "id": "b816c2cf-6d1c-446d-be1b-97314d0f18eb",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "AZrpYlLjS5ajCXd8",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        16
+      ],
+      "id": "ec523281-b0ac-4b04-98ed-28539eec26ff",
+      "name": "Chat Memory Manager"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        320,
+        192
+      ],
+      "id": "c0e3442d-4bd2-4ddc-9c20-c1c1f7319b36",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={\n  \"output\": \"{{ $json.text }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1152,
+        0
+      ],
+      "id": "2c02f885-0334-4b28-95a5-fd16a7b38d70",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector Store1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "ab254769-629e-4144-bcd1-04e69aaef9e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cc4c1c44b8051cbd808afe6bd24ce1baca212cfa066320f88554ea8cc98f45c3"
+  },
+  "nodeGroups": [],
+  "id": "g7uJhpMYo5iF73Cx",
+  "tags": []
+}
